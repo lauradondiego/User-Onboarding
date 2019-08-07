@@ -3,9 +3,10 @@ import axios from "axios";
 import { Form, Field, withFormik } from "formik";
 import * as Yup from "yup";
 
-const UserForm = ({ errors, touched, values, handleSubmit, status }) => {
+const UserForm = ({ errors, touched, values, status }) => {
   const [user, setUser] = useState([]);
-  console.log(user);
+  const [users, setUsers] = useState([]);
+  //   console.log(user);
 
   useEffect(() => {
     if (status) {
@@ -60,18 +61,30 @@ const FormikForm = withFormik({
   },
 
   validationSchema: Yup.object().shape({
-    name: Yup.string().required("You don't have a name?!"),
-    email: Yup.string().required("Hmm this doesn't seem right..."),
-    password: Yup.string().required("Try entering password again!")
+    terms: Yup.boolean().oneOf([true], "You  must agree to terms of service"),
+    // required("You must agree to terms of service"),
+    name: Yup.string()
+      .min(2, "Name must be at least 2 characters")
+      .required("Name is required!"),
+    email: Yup.string()
+      .email("Email is not valid, try again!")
+      .required("Email is required!"),
+    password: Yup.string()
+      .min(5, "Password must be 5 characters or longer")
+      .required("Password is required!")
   }),
 
   handleSubmit(values, { setStatus }) {
     axios
       .post("https://reqres.in/api/users/", values)
-      .then(res => {
-        setStatus(res.data);
+      .then(response => {
+        console.log("user data", response.data);
+        setStatus(response.data);
+        // .then ({
+        //   this.state.users.map(users => <Users setUser={users} />);
+        // })
       })
-      .catch(err => console.log(err.response));
+      .catch(error => console.log("error", error.response));
   }
 })(UserForm); // currying functions in Javascript
 
